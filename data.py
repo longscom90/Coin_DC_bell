@@ -16,7 +16,7 @@ def get_all_symbols():
     return symbols
 
 
-def get_klines(symbol="BTCUSDT", interval="5m", limit=100):
+def get_klines(symbol="BTCUSDT", interval="15m", limit=200):
     url = f"{BASE_URL}/fapi/v1/klines"
 
     params = {
@@ -28,6 +28,9 @@ def get_klines(symbol="BTCUSDT", interval="5m", limit=100):
     response = requests.get(url, params=params)
     data = response.json()
 
+    if not data or isinstance(data, dict):
+        return None
+
     df = pd.DataFrame(data, columns=[
         "time", "open", "high", "low", "close", "volume",
         "close_time", "qav", "trades", "taker_base_vol",
@@ -38,3 +41,7 @@ def get_klines(symbol="BTCUSDT", interval="5m", limit=100):
     df["volume"] = df["volume"].astype(float)
 
     return df
+
+
+def ema(df, period):
+    return df["close"].ewm(span=period).mean()
