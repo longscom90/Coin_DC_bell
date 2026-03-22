@@ -6,12 +6,17 @@ app = FastAPI()
 
 signals = []
 
+@app.get("/")
+def root():
+    return {"status": "running"}
+
 @app.get("/signals")
 def get_signals():
     return signals
 
-def start():
+def start_scanner():
     run_scanner(signals)
 
-# 🔥 백그라운드 실행
-threading.Thread(target=start, daemon=True).start()
+@app.on_event("startup")
+def start():
+    threading.Thread(target=start_scanner, daemon=True).start()
